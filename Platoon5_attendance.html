@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Platoon 5 Attendance List</title>
+  <style>
+    .form-group {
+      margin-bottom: 10px;
+    }
+    .form-group label {
+      display: inline-block;
+      width: 150px;
+      font-weight: bold;
+    }
+    .form-group input[type="radio"],
+    .form-group input[type="text"] {
+      margin-left: 10px;
+    }
+    .group-title {
+      margin-top: 20px;
+      font-size: 1.2em;
+      font-weight: bold;
+    }
+    .summary {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+  <h1>Platoon 5 Attendance List</h1>
+  <form id="attendanceForm">
+    <!-- Form content will be dynamically populated here -->
+  </form>
+
+  <div class="summary" id="summary"></div>
+
+  <script>
+    // Unique group names
+    const groupNames = ["HQ", "Section 1", "Section 2", "Section 3"];
+
+    // Names for each group, using the group names as keys
+    const groups = {
+      "HQ": ["Say Yong", "Raiyan", "Fei Xiang", "Zi Ming", "Andrew", "Wai Keong", "Fadzree"],
+      "Section 1": ["Say Han", "Hans", "Sean", "Nicholas", "Sai Marn", "Adriel", "Zi Sheng"],
+      "Section 2": ["Hemanshu", "Seelan", "Che Siang", "Herry", "Fahmi", "Almous"],
+      "Section 3": ["Min Xin", "Kah Boon", "Ridzwan", "Jin Xian", "Yi Jie", "Uwais"]
+    };
+
+    // Function to dynamically generate the form
+    function generateForm() {
+      const form = document.getElementById('attendanceForm');
+      let index = 1;
+
+      groupNames.forEach((groupName) => {
+        const groupMembers = groups[groupName];
+
+        // Create group title with the unique group name
+        const groupTitle = document.createElement('div');
+        groupTitle.classList.add('group-title');
+        groupTitle.textContent = `${groupName}`;
+        form.appendChild(groupTitle);
+
+        // Create form fields for each member in the group
+        groupMembers.forEach(name => {
+          const formGroup = document.createElement('div');
+          formGroup.classList.add('form-group');
+
+          // Label for the person
+          const label = document.createElement('label');
+          label.textContent = `${name}`;
+          label.setAttribute('for', `name${index}`);
+
+          // Radio buttons for present and absent
+          const radioPresent = document.createElement('input');
+          radioPresent.type = 'radio';
+          radioPresent.name = `attendance${index}`;
+          radioPresent.value = 'present';
+          radioPresent.required = true;
+
+          const radioAbsent = document.createElement('input');
+          radioAbsent.type = 'radio';
+          radioAbsent.name = `attendance${index}`;
+          radioAbsent.value = 'absent';
+
+          // Input box for reason if absent
+          const reasonInput = document.createElement('input');
+          reasonInput.type = 'text';
+          reasonInput.id = `reason${index}`;
+          reasonInput.placeholder = 'Reason if absent';
+
+          // Append elements to form group
+          formGroup.appendChild(label);
+          formGroup.appendChild(radioPresent);
+          formGroup.appendChild(document.createTextNode(' Present'));
+          formGroup.appendChild(radioAbsent);
+          formGroup.appendChild(document.createTextNode(' Absent'));
+          formGroup.appendChild(reasonInput);
+
+          // Add form group to the form
+          form.appendChild(formGroup);
+
+          // Increment index for next person
+          index++;
+        });
+      });
+
+      // Add submit button at the end
+      const submitButton = document.createElement('button');
+      submitButton.type = 'submit';
+      submitButton.textContent = 'Submit';
+      form.appendChild(submitButton);
+    }
+
+    // Function to handle form submission and summary generation
+    function handleFormSubmit(event) {
+      event.preventDefault();
+
+      const totalPeople = Object.values(groups).flat().length;
+      let overallPresentCount = 0;
+
+        // Calculate the total present count before generating the summary
+        groupNames.forEach((groupName) => {
+            const groupMembers = groups[groupName];
+
+            groupMembers.forEach((name, idx) => {
+            // Calculate the unique index for each person
+            const personIndex = idx + groupNames.indexOf(groupName) * groupMembers.length + 1;
+            const attendanceValue = document.querySelector(`input[name="attendance${personIndex}"]:checked`).value;
+
+            if (attendanceValue === 'present') {
+                overallPresentCount++;
+            }
+            });
+        });
+
+      let summary = `<h2>Platoon 5: ${overallPresentCount}/${totalPeople}</h2>`;
+
+      groupNames.forEach((groupName) => {
+        const groupMembers = groups[groupName];
+        let presentList = [];
+        let absentList = [];
+        let presentCount = 0;
+
+        groupMembers.forEach((name, idx) => {
+          // Calculate the unique index for each person
+          const personIndex = idx + groupNames.indexOf(groupName) * groupMembers.length + 1;
+          const attendanceValue = document.querySelector(`input[name="attendance${personIndex}"]:checked`).value;
+          const reasonValue = document.getElementById(`reason${personIndex}`).value;
+
+          if (attendanceValue === 'present') {
+            presentList.push(name);
+            presentCount++;
+          } else {
+            absentList.push(`- ${name} (Reason: ${reasonValue || "No reason provided"})`);
+          }
+        });
+
+        // Group summary
+        summary += `<p><strong>${groupName}: ${presentCount}/${groupMembers.length}</strong></p>`;
+        summary += `<p>${absentList.join('<br>')}</p>`;
+      });
+
+      document.getElementById('summary').innerHTML = summary;
+    }
+
+function handleFormSubmit(event) {
+  event.preventDefault();
+
+  const totalPeople = Object.values(groups).flat().length;
+  let overallPresentCount = 0;
+
+  // Calculate the total present count before generating the summary
+  let globalIndex = 1; // This will track the global index across all groups
+  groupNames.forEach((groupName) => {
+    const groupMembers = groups[groupName];
+
+    groupMembers.forEach((name) => {
+      // Use globalIndex instead of the previous formula
+      const personIndex = globalIndex;
+      const attendanceValue = document.querySelector(`input[name="attendance${personIndex}"]:checked`).value;
+
+      if (attendanceValue === 'present') {
+        overallPresentCount++;
+      }
+
+      globalIndex++; // Increment for the next person
+    });
+  });
+
+  let summary = `<h2>Platoon 5: ${overallPresentCount}/${totalPeople}</h2>`;
+
+  // Detailed group summaries
+  globalIndex = 1; // Reset globalIndex for generating the group-specific summary
+  groupNames.forEach((groupName) => {
+    const groupMembers = groups[groupName];
+    let presentList = [];
+    let absentList = [];
+    let presentCount = 0;
+
+    groupMembers.forEach((name) => {
+      // Use globalIndex for this group as well
+      const personIndex = globalIndex;
+      const attendanceValue = document.querySelector(`input[name="attendance${personIndex}"]:checked`).value;
+      const reasonValue = document.getElementById(`reason${personIndex}`).value;
+
+      if (attendanceValue === 'present') {
+        presentList.push(name);
+        presentCount++;
+      } else {
+        absentList.push(`- ${name} (${reasonValue})`);
+      }
+
+      globalIndex++; // Increment for the next person
+    });
+
+    // Group summary
+    summary += `<p><strong>${groupName}: ${presentCount}/${groupMembers.length}</strong></p>`;
+    summary += `<p>${absentList.join('<br>')}</p>`;
+  });
+
+  document.getElementById('summary').innerHTML = summary;
+}
+
+
+
+
+
+
+
+    // Generate the form on page load
+    generateForm();
+
+    // Add event listener for form submission
+    document.getElementById('attendanceForm').addEventListener('submit', handleFormSubmit);
+  </script>
+</body>
+</html>
