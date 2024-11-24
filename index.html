@@ -13,33 +13,26 @@
     }
 
     .form-group {
-      margin-bottom: 15px;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
+      margin-bottom: 20px;
     }
 
     .form-group label {
       font-weight: bold;
-      flex: 1 1 100%; /* Make labels take full width on smaller screens */
+      display: block; /* Ensure label is on its own line */
       margin-bottom: 5px;
     }
 
-    .form-group input[type="radio"],
-    .form-group input[type="text"] {
-      margin-right: 10px;
+    .radio-group {
+      display: flex;
+      align-items: center;
+      gap: 10px; /* Space between radio options */
+      margin-top: 5px;
     }
 
     /* Stack radio buttons and inputs vertically on smaller screens */
     @media (max-width: 600px) {
-      .form-group {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .form-group input[type="radio"],
-      .form-group input[type="text"] {
-        margin-bottom: 5px;
+      .radio-group {
+        flex-wrap: wrap;
       }
     }
 
@@ -73,8 +66,7 @@
     /* Hide the reason input initially */
     .reason-input {
       display: none;
-      flex: 1 1 100%; /* Make the text input stretch to full width on smaller screens */
-      margin-top: 5px;
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -123,6 +115,10 @@
           label.textContent = `${name}`;
           label.setAttribute('for', `name${index}`);
 
+          // Container for the radio buttons
+          const radioGroup = document.createElement('div');
+          radioGroup.classList.add('radio-group');
+
           // Radio buttons for present and absent
           const radioPresent = document.createElement('input');
           radioPresent.type = 'radio';
@@ -147,12 +143,15 @@
           radioPresent.addEventListener('change', () => toggleReasonInput(reasonInput, false));
           radioAbsent.addEventListener('change', () => toggleReasonInput(reasonInput, true));
 
+          // Append radio buttons to the radio group
+          radioGroup.appendChild(radioPresent);
+          radioGroup.appendChild(document.createTextNode(' Present'));
+          radioGroup.appendChild(radioAbsent);
+          radioGroup.appendChild(document.createTextNode(' Absent'));
+
           // Append elements to form group
           formGroup.appendChild(label);
-          formGroup.appendChild(radioPresent);
-          formGroup.appendChild(document.createTextNode(' Present'));
-          formGroup.appendChild(radioAbsent);
-          formGroup.appendChild(document.createTextNode(' Absent'));
+          formGroup.appendChild(radioGroup);
           formGroup.appendChild(reasonInput);
 
           // Add form group to the form
