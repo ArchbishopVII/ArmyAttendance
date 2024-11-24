@@ -36,6 +36,7 @@
         flex-direction: column;
         align-items: flex-start;
       }
+
       .form-group input[type="radio"],
       .form-group input[type="text"] {
         margin-bottom: 5px;
@@ -68,6 +69,13 @@
     button:hover {
       background-color: #45a049;
     }
+
+    /* Hide the reason input initially */
+    .reason-input {
+      display: none;
+      flex: 1 1 100%; /* Make the text input stretch to full width on smaller screens */
+      margin-top: 5px;
+    }
   </style>
 </head>
 
@@ -86,7 +94,7 @@
     // Names for each group, using the group names as keys
     const groups = {
       "HQ": ["Say Yong", "Raiyan", "Fei Xiang", "Zi Ming", "Andrew", "Wai Keong", "Fadzree"],
-      "Section 1": ["Say Han", "Hans", "Sean", "Nicholas", "Sai Marn", "Adriel", "Zi Sheng"],
+      "Section 1": ["Say Han", "Hans", "Sean", "Nicholas (LD 2/3 days)", "Sai Marn", "Adriel", "Zi Sheng"],
       "Section 2": ["Hemanshu", "Seelan", "Che Siang", "Herry", "Fahmi", "Almous"],
       "Section 3": ["Min Xin", "Kah Boon", "Ridzwan (booking out at night when needed)", "Jin Xian", "Yi Jie", "Uwais"]
     };
@@ -121,6 +129,7 @@
           radioPresent.name = `attendance${index}`;
           radioPresent.value = 'present';
           radioPresent.required = true;
+          radioPresent.checked = true; // Default to "Present"
 
           const radioAbsent = document.createElement('input');
           radioAbsent.type = 'radio';
@@ -132,7 +141,11 @@
           reasonInput.type = 'text';
           reasonInput.id = `reason${index}`;
           reasonInput.placeholder = 'Reason if absent';
-          reasonInput.style.flex = "1 1 100%"; // Make the text input stretch to full width on smaller screens
+          reasonInput.classList.add('reason-input');
+
+          // Add event listeners for radio buttons
+          radioPresent.addEventListener('change', () => toggleReasonInput(reasonInput, false));
+          radioAbsent.addEventListener('change', () => toggleReasonInput(reasonInput, true));
 
           // Append elements to form group
           formGroup.appendChild(label);
@@ -145,6 +158,9 @@
           // Add form group to the form
           form.appendChild(formGroup);
 
+          // Initialize reason input visibility
+          toggleReasonInput(reasonInput, false);
+
           // Increment index for next person
           index++;
         });
@@ -155,6 +171,11 @@
       submitButton.type = 'submit';
       submitButton.textContent = 'Submit';
       form.appendChild(submitButton);
+    }
+
+    // Function to show or hide the reason input based on selection
+    function toggleReasonInput(reasonInput, show) {
+      reasonInput.style.display = show ? 'block' : 'none';
     }
 
     // Function to handle form submission and summary generation
